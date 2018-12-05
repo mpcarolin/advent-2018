@@ -3,8 +3,10 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [proto-repl "0.3.1"]]
+  :dependencies [[org.clojure/clojure "1.9.0"]]
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
+                                  [proto-repl "0.3.1"]
+                                  [org.clojure/tools.trace "0.7.10"]]}
+             :uberjar {:aot :all}}
   :main ^:skip-aot advent.core
-  :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :target-path "target/%s")

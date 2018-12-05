@@ -1,5 +1,7 @@
 (ns advent.core
-  (:gen-class))
+  (:require [clojure.spec.alpha :as sp]
+            [clojure.spec.test.alpha :as stest]
+            [clojure.spec.gen.alpha :as gen]))
 
 (defn parse-int [x] (Integer/parseInt x))
 
@@ -12,12 +14,10 @@
     (let [result (get-input day)]
       (map alter-fn result))))
 
-
 ;; Day 1 problem 1
 (defn sum-frequencies
   [deltas]
   (reduce + deltas))
-
 
 (defn first-repeated-freq
   [deltas]
@@ -30,7 +30,6 @@
         (recur (conj past-set new-sum)
                new-sum
                (or rest deltas))))))
-
 
 ;; day 2
 (defn update-else
@@ -64,8 +63,34 @@
         sums (reduce sum-fn counts)]
     (reduce * sums)))
 
-(defn matching-letters-of-correct-ids
+;; day2 part 2
+(defn similar-ids?
+  [a b]
+  (let [label (fn [x y] (if (= x y) :match :mismatch))]
+    (->> (map label a b)
+         (filter #{:mismatch})
+         (count)
+         (>= 1))))
+
+(defn get-shared-chars
+  [a b]
+  (letfn [(match-or-nil
+           [x y]
+           (if (= x y) x nil))]
+    (->> (map match-or-nil a b)
+         (remove nil?)
+         (apply str))))
+
+(defn similar-pair
   [ids]
-  )
-(->> (get-input 2)
-     (checksum))
+  (first
+    (for [i (range 0
+                   (count ids))
+          j (range (inc i)
+                   (count ids))
+          :let [id (ids i)
+                counterpart (ids j)]
+          :when (similar-ids? id
+                              counterpart)]
+       (get-shared-chars id
+                         counterpart))))
