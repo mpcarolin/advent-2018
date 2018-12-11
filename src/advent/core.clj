@@ -94,3 +94,70 @@
                               counterpart)]
        (get-shared-chars id
                          counterpart))))
+
+
+
+;; day 3
+;;; Input parsing
+
+(defn seq-split [s re] (seq (.split s re)))
+(defn parse-dist
+  [s]
+  (let [[l x] (seq-split s ",")
+        end (dec (count x))
+        t (.substring x 0 end)]
+    [(parse-int l)
+     (parse-int t)]))
+
+(defrecord Claim [id l t w h])
+
+(defn line->claim
+  [line]
+  (let [split (seq-split line " ")
+        id (.substring (first split) 1)
+        [left-dist top-dist] (parse-dist (nth split 2))
+        [w h] (map parse-int
+                (seq-split (last split) "x"))]
+    (->Claim id left-dist top-dist w h)))
+
+
+(comment
+(def claim (first claims))
+(def t (:t claim))
+(def l (:l claim))
+(def w (:w claim))
+(def h (:h claim))
+)
+
+(defn fill-cells
+  "Cells: map of coordinates (tuple vector) to existence counts"
+  [cells {:keys [l t w h] :as claim}]
+  (let [coords (for [row (range t (+ t h))
+                     col (range l (+ l w))]
+                 [row col])]
+    (reduce (fn [cells coord]
+              (update-else cells coord inc 1))
+            cells
+            coords)))
+
+(defn countp
+  "Counts the number of elements in col which satisfy pred."
+  [pred col]
+  (count
+   (filter pred col)))
+
+(defn count-overlaps
+  [cells]
+  (countp #(>= % 2)
+          (vals cells)))
+
+;; raw input
+(defn compute-overlap-answer
+  [lines]
+  (let [claims (map line->claim lines)
+        cells (reduce fill-cells {} claims)]
+    (count-overlaps cells)))
+
+(def lines (get-input 3))
+
+(compute-overlap-answer lines)
